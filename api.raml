@@ -1,0 +1,304 @@
+#%RAML 1.0
+---
+title: Praktikos API
+version: v1
+baseUri: http://45.81.252.38:8001/api
+
+/Questions/{topic}/{amount}:
+  uriParameters:
+    topic:
+      type: integer
+      description: "ID of the questions topic to be returned"
+      example: 1
+    amount:
+      type: integer
+      description: "Amount of questions to be returned"
+      example: 2
+  get:
+    description: "Get selected amount of Questions with answers in random order from the specified topic"
+    responses:
+      200:
+        body:
+          application/json:
+            example: |
+              [
+                {
+                  "id": 1,
+                  "quiz_id": 1,
+                  "question": "What is the capital of France?",
+                  "answers": [
+                    {"id": 1, "answer": "Paris", "isCorrect": true},
+                    {"id": 2, "answer": "Berlin", "isCorrect": false}
+                  ]
+                },
+                {
+                  "id": 2,
+                  "quiz_id": 1,
+                  "question": "What is 2 + 2?",
+                  "answers": [
+                    {"id": 3, "answer": "4", "isCorrect": true},
+                    {"id": 4, "answer": "5", "isCorrect": false}
+                  ]
+                }
+              ]
+      400:
+        body:
+          application/json:
+            example: |
+              {
+                "error": "Bad Request"
+              }
+      500:
+        body:
+          application/json:
+            example: |
+              {"error": "Internal Server Error"}
+
+
+/checkAnswer/{questionID}/{answerID}:
+  uriParameters:
+    questionID:
+      type: integer
+      description: "ID of the question to check answer for"
+      example: 2
+    answerID:
+      type: integer
+      description: "ID of the answer to be checked"
+      example: 1
+  post:
+    description: "Check single answer by questionID and answerID"
+    responses:
+      200:
+        body:
+          application/json:
+            example: |
+              {"isCorrect": true}
+      400:
+        body:
+          application/json:
+            example: |
+              {
+                "error": "Bad Request"
+              }
+      500:
+        body:
+          application/json:
+            example: |
+              {"error": "Internal Server Error"}
+
+/checkAnswers/{questionID}:
+  uriParameters:
+    questionID:
+      type: integer
+      description: "ID of the question to check answers for"
+      example: 1
+  post:
+    description: "Check answers for a specific question"
+    queryParameters:
+      answers:
+        type: array
+        items: string
+        description: "An array of answers to check"
+    responses:
+      200:
+        body:
+          application/json:
+            example: |
+              [
+                {
+                "answerID": 1,
+                "isCorrect": true
+                },
+                {
+                "answerID": 2,
+                "isCorrect": false,
+                "correctID": 1,
+                "answerText": "Lorem ipsum"
+                }
+              ]
+      400:
+        body:
+          application/json:
+            example: |
+              {
+                "error": "Bad Request"
+              }
+      500:
+        body:
+          application/json:
+            example: |
+              {"error": "Internal Server Error"}
+
+/deleteQuestion/{questionID}:
+  uriParameters:
+    questionID:
+      type: integer
+      description: "ID of the question to be deleted"
+      example: 1
+  delete:
+    description: "Deletes selected question with answers from the database"
+    responses:
+      200:
+        body:
+          application/json:
+            example: |
+              {"success": true}
+      400:
+        body:
+          application/json:
+            example: |
+              {
+                "error": "Bad Request"
+              }
+      500:
+        body:
+          application/json:
+            example: |
+              {"error": "Internal Server Error"}
+
+/deleteAnswer/{answerID}:
+  uriParameters:
+    answerID:
+      type: integer
+      description: "ID of the answer to be deleted"
+      example: 2
+  delete:
+    description: "Deletes selected answer from the database"
+    responses:
+      200:
+        body:
+          application/json:
+            example: |
+              {"success": true}
+      400:
+        body:
+          application/json:
+            example: |
+              {
+                "error": "Bad Request"
+              }
+      500:
+        body:
+          application/json:
+            example: |
+              {"error": "Internal Server Error"}
+
+/deleteAnswers:
+  delete:
+    queryParameters:
+      answers:
+        description: "Array with answer id's"
+        type: array
+        required: true
+        example: [ 1, 2, 3 ]
+    description: "Deletes selected answers"
+    responses:
+      200:
+        body:
+          application/json:
+            example: |
+              {"success": true}
+      400:
+        body:
+          application/json:
+            example: |
+              {
+                "error": "Bad Request"
+              }
+      500:
+        body:
+          application/json:
+            example: |
+              {"error": "Internal Server Error"}
+
+/deleteAnswers/{questionID}:
+  uriParameters:
+    questionID:
+      type: integer
+      description: "ID of the question to delete answers for"
+      example: 1
+  delete:
+    description: "Deletes all answers by questionID"
+    responses:
+      200:
+        body:
+          application/json:
+            example: |
+              {"success": true}
+      400:
+        body:
+          application/json:
+            example: |
+              {
+                "error": "Bad Request"
+              }
+      500:
+        body:
+          application/json:
+            example: |
+              {"error": "Internal Server Error"}
+
+/addQuestion:
+  post:
+    body:
+      application/json:
+        properties:
+          topicID: integer
+          question: string
+          adminID: integer
+          answers:
+            type: array
+            items:
+              type: object
+              properties:
+                answerID: integer
+                answerText: string
+                isCorrect: boolean
+    responses:
+      200:
+        body:
+          application/json:
+            example: |
+              {"success": true, "questionID": 1}
+      400:
+        body:
+          application/json:
+            example: |
+              {"error": "Bad Request"}
+      500:
+        body:
+          application/json:
+            example: |
+              {"error": "Internal Server Error"}
+
+/addAnswer/{questionID}:
+  uriParameters:
+    questionID:
+      description: 'ID of the question to which the answer will be added.'
+      type: integer
+      example: 1
+  post:
+    description: ''
+    body:
+      application/json:
+        type: object
+        properties:
+          answerID: integer
+          answerText: string
+          isCorrect: boolean
+    responses:
+      200:
+        body:
+          application/json:
+            example: |
+              {"success": true, "answerID": 1}
+      400:
+        body:
+          application/json:
+            example: |
+              {"error": "Bad Request"}
+      500:
+        body:
+          application/json:
+            example: |
+              {"error": "Internal Server Error"}
